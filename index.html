@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grow Together</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f3;
+  color: #171717;
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  border: 0;
+  cursor: pointer;
+}
+
+.app {
+  max-width: 520px;
+  margin: auto;
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+header {
+  padding: 24px 20px 12px;
+}
+
+.date {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+.section {
+  padding: 10px 18px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-title h2 {
+  font-size: 19px;
+}
+
+.card {
+  background: #e9e9e6;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.task-card {
+  background: #f0f0ee;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #d9d9d5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.streak {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
+}
+
+.check {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #999;
+  border-radius: 50%;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.completed {
+  background: #dcebdd;
+}
+
+.completed .check {
+  background: #62a66b;
+  border-color: #62a66b;
+  position: relative;
+}
+
+.completed .check::after {
+  content: "✓";
+  color: white;
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  font-size: 16px;
+}
+
+.completed .item-name {
+  color: #638068;
+}
+
+.progress-box {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.progress {
+  height: 8px;
+  background: #e2e2df;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #68a66d;
+  border-radius: 10px;
+  width: 0%;
+  transition: width .3s;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: #191919;
+  color: white;
+  margin-top: 4px;
+}
+
+.shared-header {
+  background: #e9e9e6;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.shared-name {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.players {
+  display: flex;
+  gap: 10px;
+}
+
+.player {
+  flex: 1;
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.player-name {
+  font-size: 13px;
+  color: #777;
+}
+
+.player-streak {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, 100%);
+  height: 72px;
+  background: rgba(255,255,255,.96);
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 10;
+}
+
+.nav-btn {
+  background: transparent;
+  color: #888;
+  text-align: center;
+  font-size: 12px;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 3px;
+}
+
+.nav-btn.active {
+  color: #171717;
+  font-weight: bold;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.setting {
+  background: white;
+  border-radius: 15px;
+  padding: 17px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting small {
+  display: block;
+  color: #777;
+  margin-top: 4px;
+}
+
+.toggle {
+  width: 48px;
+  height: 28px;
+  background: #ccc;
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.toggle span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+.toggle.on {
+  background: #68a66d;
+}
+
+.toggle.on span {
+  transform: translateX(20px);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-box {
+  background: white;
+  width: 100%;
+  max-width: 520px;
+  margin: auto auto 0;
+  border-radius: 24px 24px 0 0;
+  padding: 22px;
+}
+
+.modal-box h2 {
+  margin-bottom: 16px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.cancel {
+  background: #eee;
+}
+
+.save {
+  background: #191919;
+  color: white;
+}
+
+/* Dark mode */
+body.dark {
+  background: #111;
+  color: #eee;
+}
+
+body.dark .card,
+body.dark .shared-header {
+  background: #1d1d1d;
+}
+
+body.dark .task-card {
+  background: #181818;
+}
+
+body.dark .progress-box,
+body.dark .player,
+body.dark .setting,
+body.dark .modal-box {
+  background: #1b1b1b;
+}
+
+body.dark .icon {
+  background: #292929;
+}
+
+body.dark .progress {
+  background: #333;
+}
+
+body.dark .bottom-nav {
+  background: #181818;
+  border-color: #333;
+}
+
+body.dark input {
+  background: #222;
+  color: white;
+  border-color: #444;
+}
+
+body.dark .cancel {
+  background: #333;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- HOME -->
+  <main id="home" class="page active">
+
+    <header>
+      <div class="date" id="todayDate"></div>
+      <h1>Today</h1>
+    </header>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Shared</h2>
+      </div>
+
+      <div id="homeShared"></div>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>Shared progress</span>
+          <span id="sharedPercent">0%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="sharedProgress"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>My habits & tasks</h2>
+      </div>
+
+      <div id="personalItems"></div>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>Personal progress</span>
+          <span id="personalPercent">0%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="personalProgress"></div>
+        </div>
+      </div>
+
+      <button class="add-btn" onclick="openModal()">
+        + Add personal habit or task
+      </button>
+    </section>
+
+  </main>
+
+
+  <!-- SHARED -->
+  <main id="shared" class="page">
+
+    <header>
+      <div class="date">Shared space</div>
+      <h1>Grow Together</h1>
+    </header>
+
+    <section class="section">
+
+      <div class="shared-header">
+        <div class="shared-name">Grow Together</div>
+
+        <div class="players">
+          <div class="player">
+            <div class="player-name">You</div>
+            <div class="player-streak">7</div>
+          </div>
+
+          <div class="player">
+            <div class="player-name">Friend</div>
+            <div class="player-streak">5</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <h2>Shared habits</h2>
+      </div>
+
+      <div id="sharedHabits"></div>
+
+      <div class="section-title">
+        <h2>Shared tasks</h2>
+      </div>
+
+      <div id="sharedTasks"></div>
+
+    </section>
+  </main>
+
+
+  <!-- SETTINGS -->
+  <main id="settings" class="page">
+
+    <header>
+      <div class="date">Your account</div>
+      <h1>Settings</h1>
+    </header>
+
+    <section class="section">
+
+      <div class="setting">
+        <div>
+          <b>Username</b>
+          <small>reliable67-coder</small>
+        </div>
+        <span>›</span>
+      </div>
+
+      <div class="setting">
+        <div>
+          <b>Password</b>
+          <small>Change your password</small>
+        </div>
+        <span>›</span>
+      </div>
+
+      <div class="setting">
+        <div>
+          <b>Friend Code</b>
+          <small>GT-4827</small>
+        </div>
+        <span>›</span>
+      </div>
+
+      <div class="setting">
+        <div>
+          <b>Dark mode</b>
+          <small>Switch between light and dark</small>
+        </div>
+
+        <button class="toggle" id="darkToggle" onclick="toggleDark()">
+          <span></span>
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+</div>
+
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+
+  <button class="nav-btn active" onclick="showPage('home', this)">
+    <span class="nav-icon">⌂</span>
+    Home
+  </button>
+
+  <button class="nav-btn" onclick="showPage('shared', this)">
+    <span class="nav-icon">♧</span>
+    Shared
+  </button>
+
+  <button class="nav-btn" onclick="showPage('settings', this)">
+    <span class="nav-icon">⚙</span>
+    Settings
+  </button>
+
+</nav>
+
+
+<!-- ADD MODAL -->
+<div class="modal" id="addModal">
+
+  <div class="modal-box">
+
+    <h2>Add something</h2>
+
+    <input
+      id="newItem"
+      type="text"
+      placeholder="Habit or task name"
+    >
+
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeModal()">
+        Cancel
+      </button>
+
+      <button class="save" onclick="addItem()">
+        Add
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+let personalItems = [
+  {
+    name: "Wake up early",
+    icon: "☀️",
+    type: "habit",
+    streak: 7,
+    done: false
+  },
+  {
+    name: "Exercise",
+    icon: "🏃",
+    type: "habit",
+    streak: 4,
+    done: false
+  },
+  {
+    name: "Drink water",
+    icon: "💧",
+    type: "habit",
+    streak: 0,
+    done: true
+  },
+  {
+    name: "Finish today's work",
+    icon: "✓",
+    type: "task",
+    streak: 0,
+    done: false
+  }
+];
+
+let sharedItems = [
+  {
+    name: "Exercise",
+    icon: "🏃",
+    type: "habit",
+    done: false
+  },
+  {
+    name: "Read 20 minutes",
+    icon: "📖",
+    type: "habit",
+    done: true
+  },
+  {
+    name: "Complete project task",
+    icon: "✓",
+    type: "task",
+    done: false
+  }
+];
+
+
+function formatDate() {
+
+  const date = new Date();
+
+  const options = {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  };
+
+  document.getElementById("todayDate").textContent =
+    date.toLocaleDateString("en-US", options);
+}
+
+
+function renderItem(item, index, shared = false) {
+
+  const completed = item.done ? "completed" : "";
+
+  let streakText = "";
+
+  if (!shared && item.type === "habit" && item.streak > 0) {
+    streakText = "🔥 " + item.streak;
+  }
+
+  return `
+    <div class="card ${item.type === "task" ? "task-card" : ""} ${completed}"
+         onclick="toggleItem(${index}, ${shared})">
+
+      <div class="item">
+
+        <div class="icon">
+          ${item.icon}
+        </div>
+
+        <div class="item-info">
+
+          <div class="item-name">
+            ${item.name}
+          </div>
+
+          ${
+            streakText
+            ? `<div class="streak">${streakText}</div>`
+            : ""
+          }
+
+        </div>
+
+        <button class="check"></button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+function render() {
+
+  const personal =
+    [...personalItems]
+    .sort((a,b) => Number(a.done) - Number(b.done));
+
+  const shared =
+    [...sharedItems]
+    .sort((a,b) => Number(a.done) - Number(b.done));
+
+
+  document.getElementById("personalItems").innerHTML =
+    personal.map((item) =>
+      renderItem(
+        item,
+        personalItems.indexOf(item),
+        false
+      )
+    ).join("");
+
+
+  document.getElementById("homeShared").innerHTML =
+    shared.map((item) =>
+      renderItem(
+        item,
+        sharedItems.indexOf(item),
+        true
+      )
+    ).join("");
+
+
+  document.getElementById("sharedHabits").innerHTML =
+    shared
+      .filter(item => item.type === "habit")
+      .map(item =>
+        renderItem(
+          item,
+          sharedItems.indexOf(item),
+          true
+        )
+      ).join("");
+
+
+  document.getElementById("sharedTasks").innerHTML =
+    shared
+      .filter(item => item.type === "task")
+      .map(item =>
+        renderItem(
+          item,
+          sharedItems.indexOf(item),
+          true
+        )
+      ).join("");
+
+
+  updateProgress();
+}
+
+
+function toggleItem(index, shared) {
+
+  if (shared) {
+    sharedItems[index].done =
+      !sharedItems[index].done;
+  } else {
+    personalItems[index].done =
+      !personalItems[index].done;
+  }
+
+  render();
+}
+
+
+function updateProgress() {
+
+  const personalTotal = personalItems.length;
+
+  const personalDone =
+    personalItems.filter(item => item.done).length;
+
+  const personalPercent =
+    personalTotal
+      ? Math.round(personalDone / personalTotal * 100)
+      : 0;
+
+
+  const sharedTotal = sharedItems.length;
+
+  const sharedDone =
+    sharedItems.filter(item => item.done).length;
+
+  const sharedPercent =
+    sharedTotal
+      ? Math.round(sharedDone / sharedTotal * 100)
+      : 0;
+
+
+  document.getElementById("personalProgress").style.width =
+    personalPercent + "%";
+
+  document.getElementById("personalPercent").textContent =
+    personalPercent + "%";
+
+
+  document.getElementById("sharedProgress").style.width =
+    sharedPercent + "%";
+
+  document.getElementById("sharedPercent").textContent =
+    sharedPercent + "%";
+}
+
+
+function showPage(page, button) {
+
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById(page)
+    .classList.add("active");
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(b => b.classList.remove("active"));
+
+  button.classList.add("active");
+
+  window.scrollTo(0,0);
+}
+
+
+function openModal() {
+
+  document.getElementById("addModal")
+    .classList.add("show");
+
+  document.getElementById("newItem").focus();
+}
+
+
+function closeModal() {
+
+  document.getElementById("addModal")
+    .classList.remove("show");
+
+  document.getElementById("newItem").value = "";
+}
+
+
+function addItem() {
+
+  const input =
+    document.getElementById("newItem");
+
+  const name = input.value.trim();
+
+  if (!name) return;
+
+  personalItems.push({
+    name: name,
+    icon: "✓",
+    type: "task",
+    streak: 0,
+    done: false
+  });
+
+  closeModal();
+  render();
+}
+
+
+function toggleDark() {
+
+  document.body.classList.toggle("dark");
+
+  const enabled =
+    document.body.classList.contains("dark");
+
+  document.getElementById("darkToggle")
+    .classList.toggle("on", enabled);
+}
+
+
+formatDate();
+render();
+
+</script>
+
+</body>
+</html>
