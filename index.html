@@ -3,896 +3,2243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f7f5">
 <title>Grow Together</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*{box-sizing:border-box}
+:root{
+--bg:#f7f7f5;--card:#fff;--habit:#ededeb;--task:#f4f4f2;--text:#171717;
+--muted:#777;--line:#deded9;--green:#4f9b68;--green-bg:#e4f1e7;
+--danger:#c84b4b;--nav:#fff;--shadow:0 2px 12px rgba(0,0,0,.05)
 }
-
-body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f3;
-  color: #171717;
-  min-height: 100vh;
+[data-theme="dark"]{
+--bg:#111312;--card:#1b1e1c;--habit:#252926;--task:#202421;--text:#f1f1ee;
+--muted:#a5a7a5;--line:#343835;--green:#6db782;--green-bg:#203a29;
+--danger:#ef7373;--nav:#1b1e1c;--shadow:0 2px 12px rgba(0,0,0,.2)
 }
-
-button {
-  font: inherit;
-  border: 0;
-  cursor: pointer;
-}
-
-.app {
-  max-width: 520px;
-  margin: auto;
-  min-height: 100vh;
-  padding-bottom: 90px;
-}
-
-header {
-  padding: 24px 20px 12px;
-}
-
-.date {
-  font-size: 14px;
-  color: #777;
-  margin-bottom: 6px;
-}
-
-h1 {
-  font-size: 30px;
-}
-
-.section {
-  padding: 10px 18px;
-}
-
-.section-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.section-title h2 {
-  font-size: 19px;
-}
-
-.card {
-  background: #e9e9e6;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 10px;
-}
-
-.task-card {
-  background: #f0f0ee;
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: #d9d9d5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.item-info {
-  flex: 1;
-}
-
-.item-name {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.streak {
-  font-size: 12px;
-  color: #777;
-  margin-top: 4px;
-}
-
-.check {
-  width: 28px;
-  height: 28px;
-  border: 2px solid #999;
-  border-radius: 50%;
-  background: transparent;
-  flex-shrink: 0;
-}
-
-.completed {
-  background: #dcebdd;
-}
-
-.completed .check {
-  background: #62a66b;
-  border-color: #62a66b;
-  position: relative;
-}
-
-.completed .check::after {
-  content: "✓";
-  color: white;
-  position: absolute;
-  left: 5px;
-  top: 2px;
-  font-size: 16px;
-}
-
-.completed .item-name {
-  color: #638068;
-}
-
-.progress-box {
-  background: white;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 10px;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.progress {
-  height: 8px;
-  background: #e2e2df;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: #68a66d;
-  border-radius: 10px;
-  width: 0%;
-  transition: width .3s;
-}
-
-.add-btn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 14px;
-  background: #191919;
-  color: white;
-  margin-top: 4px;
-}
-
-.shared-header {
-  background: #e9e9e6;
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 14px;
-}
-
-.shared-name {
-  font-size: 21px;
-  font-weight: bold;
-  margin-bottom: 16px;
-}
-
-.players {
-  display: flex;
-  gap: 10px;
-}
-
-.player {
-  flex: 1;
-  background: white;
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-}
-
-.player-name {
-  font-size: 13px;
-  color: #777;
-}
-
-.player-streak {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 4px;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(520px, 100%);
-  height: 72px;
-  background: rgba(255,255,255,.96);
-  border-top: 1px solid #ddd;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 10;
-}
-
-.nav-btn {
-  background: transparent;
-  color: #888;
-  text-align: center;
-  font-size: 12px;
-}
-
-.nav-icon {
-  display: block;
-  font-size: 22px;
-  margin-bottom: 3px;
-}
-
-.nav-btn.active {
-  color: #171717;
-  font-weight: bold;
-}
-
-.page {
-  display: none;
-}
-
-.page.active {
-  display: block;
-}
-
-.setting {
-  background: white;
-  border-radius: 15px;
-  padding: 17px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.setting small {
-  display: block;
-  color: #777;
-  margin-top: 4px;
-}
-
-.toggle {
-  width: 48px;
-  height: 28px;
-  background: #ccc;
-  border-radius: 20px;
-  padding: 3px;
-}
-
-.toggle span {
-  display: block;
-  width: 22px;
-  height: 22px;
-  background: white;
-  border-radius: 50%;
-  transition: .2s;
-}
-
-.toggle.on {
-  background: #68a66d;
-}
-
-.toggle.on span {
-  transform: translateX(20px);
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  display: none;
-  align-items: flex-end;
-  z-index: 20;
-}
-
-.modal.show {
-  display: flex;
-}
-
-.modal-box {
-  background: white;
-  width: 100%;
-  max-width: 520px;
-  margin: auto auto 0;
-  border-radius: 24px 24px 0 0;
-  padding: 22px;
-}
-
-.modal-box h2 {
-  margin-bottom: 16px;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  font-size: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.modal-actions button {
-  flex: 1;
-  padding: 14px;
-  border-radius: 12px;
-}
-
-.cancel {
-  background: #eee;
-}
-
-.save {
-  background: #191919;
-  color: white;
-}
-
-/* Dark mode */
-body.dark {
-  background: #111;
-  color: #eee;
-}
-
-body.dark .card,
-body.dark .shared-header {
-  background: #1d1d1d;
-}
-
-body.dark .task-card {
-  background: #181818;
-}
-
-body.dark .progress-box,
-body.dark .player,
-body.dark .setting,
-body.dark .modal-box {
-  background: #1b1b1b;
-}
-
-body.dark .icon {
-  background: #292929;
-}
-
-body.dark .progress {
-  background: #333;
-}
-
-body.dark .bottom-nav {
-  background: #181818;
-  border-color: #333;
-}
-
-body.dark input {
-  background: #222;
-  color: white;
-  border-color: #444;
-}
-
-body.dark .cancel {
-  background: #333;
-  color: white;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{width:100%;max-width:390px}
+.logo{text-align:center;font-size:30px;font-weight:800;margin-bottom:8px}
+.subtitle{text-align:center;color:var(--muted);margin-bottom:28px}
+.auth-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
+.field input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);outline:none}
+.field input:focus{border-color:var(--green)}
+.primary{width:100%;padding:13px;border:0;border-radius:12px;background:var(--text);color:var(--bg);font-weight:700}
+.switch{text-align:center;color:var(--muted);font-size:13px;margin-top:15px}
+.link{border:0;background:none;color:var(--green);font-weight:700;padding:0}
+.error{color:var(--danger);font-size:13px;margin-top:10px;line-height:1.4}
+#app{max-width:560px;margin:auto;min-height:100vh;padding-bottom:82px}
+header{padding:22px 18px 8px}
+.date{font-size:14px;color:var(--muted);margin-bottom:4px}
+.header-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:28px;margin:0}
+.section{padding:10px 16px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section-title h2{font-size:18px;margin:0}
+.progress-wrap{margin:7px 0 16px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+.progress{height:7px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--green);border-radius:99px}
+.card{background:var(--habit);border-radius:15px;padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow)}
+.card.task{background:var(--task)}
+.card.done{background:var(--green-bg)}
+.item-row{display:flex;align-items:center;gap:11px}
+.check{width:30px;height:30px;min-width:30px;border:1.5px solid var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;background:transparent;color:transparent;font-weight:800}
+.done .check{background:var(--green);border-color:var(--green);color:white}
+.item-main{flex:1;min-width:0}
+.item-name{font-size:15px;line-height:1.25;word-break:break-word}
+.done .item-name{text-decoration:line-through;opacity:.65}
+.item-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.streak{font-size:12px;white-space:nowrap;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:18px 10px;font-size:14px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--nav);border-top:1px solid var(--line);z-index:20}
+.nav{max-width:560px;margin:auto;display:flex;height:66px}
+.nav button{flex:1;border:0;background:none;color:var(--muted);font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav button.active{color:var(--text);font-weight:700}
+.nav-icon{font-size:20px}
+.fab{position:fixed;right:max(18px,calc((100vw - 560px)/2 + 18px));bottom:82px;width:50px;height:50px;border:0;border-radius:50%;background:var(--text);color:var(--bg);font-size:26px;box-shadow:var(--shadow);z-index:10}
+.panel{padding:16px}
+.panel-card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:12px}
+.panel-card h3{margin:0 0 12px;font-size:16px}
+.streaks{display:flex;gap:10px}
+.streak-box{flex:1;background:var(--habit);border-radius:14px;padding:14px}
+.streak-box .name{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.streak-box .num{font-size:27px;font-weight:800;margin-top:5px}
+.menu{position:relative}
+.menu-pop{position:absolute;right:0;top:38px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);min-width:190px;padding:6px;z-index:30}
+.menu-pop button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--text);padding:10px;border-radius:8px}
+.menu-pop button:hover{background:var(--habit)}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:0}
+.setting-label{font-size:15px}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.toggle{width:48px;height:28px;border:0;border-radius:20px;background:var(--line);padding:3px}
+.toggle i{display:block;width:22px;height:22px;border-radius:50%;background:var(--card);transition:.15s}
+.toggle.on{background:var(--green)}
+.toggle.on i{transform:translateX(20px)}
+.code{font-size:24px;font-weight:800;letter-spacing:3px;margin:8px 0}
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal{width:100%;max-width:560px;background:var(--card);border-radius:22px 22px 0 0;padding:20px;max-height:88vh;overflow:auto}
+.modal h3{margin:0 0 16px}
+.modal-actions{display:flex;gap:9px;margin-top:15px}
+.modal-actions button{flex:1;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.modal-actions .primary{border:0;background:var(--text);color:var(--bg)}
+.modal-actions .danger{background:var(--danger);color:white;border:0}
+.select-icon{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.icon-choice{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px;font-size:20px}
+.icon-choice.selected{border-color:var(--green);background:var(--green-bg)}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:13px;z-index:100;max-width:90%;text-align:center}
+.friend{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--habit);display:flex;align-items:center;justify-content:center;font-weight:800}
+.friend-main{flex:1}
+.friend-name{font-size:14px}
+.friend-code{font-size:11px;color:var(--muted)}
+.dots{border:0;background:none;color:var(--muted);font-size:22px;padding:4px 7px}
+.top-space{display:flex;justify-content:space-between;align-items:center}
+.note{font-size:12px;color:var(--muted);line-height:1.4}
 </style>
 </head>
-
 <body>
 
-<div class="app">
-
-  <!-- HOME -->
-  <main id="home" class="page active">
-
-    <header>
-      <div class="date" id="todayDate"></div>
-      <h1>Today</h1>
-    </header>
-
-    <section class="section">
-      <div class="section-title">
-        <h2>Shared</h2>
-      </div>
-
-      <div id="homeShared"></div>
-
-      <div class="progress-box">
-        <div class="progress-label">
-          <span>Shared progress</span>
-          <span id="sharedPercent">0%</span>
-        </div>
-        <div class="progress">
-          <div class="progress-fill" id="sharedProgress"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-title">
-        <h2>My habits & tasks</h2>
-      </div>
-
-      <div id="personalItems"></div>
-
-      <div class="progress-box">
-        <div class="progress-label">
-          <span>Personal progress</span>
-          <span id="personalPercent">0%</span>
-        </div>
-        <div class="progress">
-          <div class="progress-fill" id="personalProgress"></div>
-        </div>
-      </div>
-
-      <button class="add-btn" onclick="openModal()">
-        + Add personal habit or task
-      </button>
-    </section>
-
-  </main>
-
-
-  <!-- SHARED -->
-  <main id="shared" class="page">
-
-    <header>
-      <div class="date">Shared space</div>
-      <h1>Grow Together</h1>
-    </header>
-
-    <section class="section">
-
-      <div class="shared-header">
-        <div class="shared-name">Grow Together</div>
-
-        <div class="players">
-          <div class="player">
-            <div class="player-name">You</div>
-            <div class="player-streak">7</div>
-          </div>
-
-          <div class="player">
-            <div class="player-name">Friend</div>
-            <div class="player-streak">5</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">
-        <h2>Shared habits</h2>
-      </div>
-
-      <div id="sharedHabits"></div>
-
-      <div class="section-title">
-        <h2>Shared tasks</h2>
-      </div>
-
-      <div id="sharedTasks"></div>
-
-    </section>
-  </main>
-
-
-  <!-- SETTINGS -->
-  <main id="settings" class="page">
-
-    <header>
-      <div class="date">Your account</div>
-      <h1>Settings</h1>
-    </header>
-
-    <section class="section">
-
-      <div class="setting">
-        <div>
-          <b>Username</b>
-          <small>reliable67-coder</small>
-        </div>
-        <span>›</span>
-      </div>
-
-      <div class="setting">
-        <div>
-          <b>Password</b>
-          <small>Change your password</small>
-        </div>
-        <span>›</span>
-      </div>
-
-      <div class="setting">
-        <div>
-          <b>Friend Code</b>
-          <small>GT-4827</small>
-        </div>
-        <span>›</span>
-      </div>
-
-      <div class="setting">
-        <div>
-          <b>Dark mode</b>
-          <small>Switch between light and dark</small>
-        </div>
-
-        <button class="toggle" id="darkToggle" onclick="toggleDark()">
-          <span></span>
-        </button>
-      </div>
-
-    </section>
-  </main>
-
+<div id="auth">
+<div class="auth-box">
+<div class="logo">Grow Together</div>
+<div class="subtitle">Build habits. Get things done. Grow together.</div>
+<div class="auth-card">
+<div class="field"><label>Username</label><input id="authUser" autocomplete="username" maxlength="30"></div>
+<div class="field"><label>Password</label><input id="authPass" type="password" autocomplete="current-password" minlength="6"></div>
+<button class="primary" id="authBtn">Create account</button>
+<div class="switch"><span id="switchText">Already have an account?</span> <button class="link" id="switchBtn">Log in</button></div>
+<div id="authError" class="error hidden"></div>
+</div>
+</div>
 </div>
 
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-
-  <button class="nav-btn active" onclick="showPage('home', this)">
-    <span class="nav-icon">⌂</span>
-    Home
-  </button>
-
-  <button class="nav-btn" onclick="showPage('shared', this)">
-    <span class="nav-icon">♧</span>
-    Shared
-  </button>
-
-  <button class="nav-btn" onclick="showPage('settings', this)">
-    <span class="nav-icon">⚙</span>
-    Settings
-  </button>
-
-</nav>
-
-
-<!-- ADD MODAL -->
-<div class="modal" id="addModal">
-
-  <div class="modal-box">
-
-    <h2>Add something</h2>
-
-    <input
-      id="newItem"
-      type="text"
-      placeholder="Habit or task name"
-    >
-
-    <div class="modal-actions">
-      <button class="cancel" onclick="closeModal()">
-        Cancel
-      </button>
-
-      <button class="save" onclick="addItem()">
-        Add
-      </button>
-    </div>
-
-  </div>
-
+<div id="app" class="hidden">
+<header>
+<div class="date" id="todayDate"></div>
+<div class="header-row"><h1 id="pageTitle">Home</h1><div id="headerAction"></div></div>
+</header>
+<main id="content"></main>
 </div>
 
+<button id="fab" class="fab hidden">+</button>
+
+<div class="bottom hidden" id="bottomNav">
+<div class="nav">
+<button data-tab="home" class="active"><span class="nav-icon">⌂</span>Home</button>
+<button data-tab="shared"><span class="nav-icon">⇄</span>Shared</button>
+<button data-tab="settings"><span class="nav-icon">⚙</span>Settings</button>
+</div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
 
 <script>
+const SUPABASE_URL="https://uivzhyiqikxxgdoervop.supabase.co";
+const SUPABASE_KEY="sb_publishable_H7PvjVCqVBaw4GH1Wvl3mQ_5reXu3x4";
+const {createClient}=supabase;
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let personalItems = [
-  {
-    name: "Wake up early",
-    icon: "☀️",
-    type: "habit",
-    streak: 7,
-    done: false
-  },
-  {
-    name: "Exercise",
-    icon: "🏃",
-    type: "habit",
-    streak: 4,
-    done: false
-  },
-  {
-    name: "Drink water",
-    icon: "💧",
-    type: "habit",
-    streak: 0,
-    done: true
-  },
-  {
-    name: "Finish today's work",
-    icon: "✓",
-    type: "task",
-    streak: 0,
-    done: false
-  }
+let user=null,profile=null,tab="home",personalHabits=[],personalTasks=[],sharedSpaces=[],activeSpace=null;
+let sharedHabits=[],sharedTasks=[],friends=[],members=[],completionCache={};
+let authMode="signup",realtimeChannel=null;
+const icons=["🌅","🏃","📚","💧","🧘","💪","🥗","😴","✍️","🎯","🚶","🧠"];
+
+function today(){
+const d=new Date();
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function prettyDate(){
+return new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function toast(msg){
+const r=document.getElementById("toastRoot");
+r.innerHTML=`<div class="toast">${esc(msg)}</div>`;
+setTimeout(()=>r.innerHTML="",2600);
+}
+function errMsg(e){return e?.message||"Something went wrong."}
+function fakeEmail(u){return u.trim().toLowerCase()+"@growtogether.local"}
+function validUser(u){return /^[a-zA-Z0-9_]{3,30}$/.test(u)}
+async function q(promise){
+const {data,error}=await promise;
+if(error)throw error;
+return data;
+}
+  document.getElementById("switchBtn").onclick=()=>{
+authMode=authMode==="signup"?"login":"signup";
+document.getElementById("authBtn").textContent=authMode==="signup"?"Create account":"Log in";
+document.getElementById("switchText").textContent=authMode==="signup"?"Already have an account?":"New here?";
+document.getElementById("switchBtn").textContent=authMode==="signup"?"Log in":"Create account";
+document.getElementById("authError").classList.add("hidden");
+};
+
+document.getElementById("authBtn").onclick=authSubmit;
+document.getElementById("authPass").addEventListener("keydown",e=>{
+if(e.key==="Enter")authSubmit()
+});
+
+async function authSubmit(){
+const u=document.getElementById("authUser").value.trim();
+const p=document.getElementById("authPass").value;
+const er=document.getElementById("authError");
+er.classList.add("hidden");
+
+if(!validUser(u)){
+er.textContent="Username must be 3–30 characters using letters, numbers or underscore.";
+er.classList.remove("hidden");
+return;
+}
+
+if(p.length<6){
+er.textContent="Password must be at least 6 characters.";
+er.classList.remove("hidden");
+return;
+}
+
+const btn=document.getElementById("authBtn");
+btn.disabled=true;
+btn.textContent="Please wait…";
+
+try{
+if(authMode==="signup"){
+const {data,error}=await db.auth.signUp({
+email:fakeEmail(u),
+password:p
+});
+
+if(error)throw error;
+
+if(data.user){
+await db.from("profiles").insert({
+id:data.user.id,
+username:u,
+friend_code:makeCode()
+});
+}
+
+toast("Account created.");
+
+}else{
+const {error}=await db.auth.signInWithPassword({
+email:fakeEmail(u),
+password:p
+});
+
+if(error)throw error;
+}
+
+}catch(e){
+er.textContent=errMsg(e);
+er.classList.remove("hidden");
+}finally{
+btn.disabled=false;
+btn.textContent=authMode==="signup"?"Create account":"Log in";
+}
+}
+
+function makeCode(){
+const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+let out="";
+for(let i=0;i<6;i++){
+out+=chars[Math.floor(Math.random()*chars.length)];
+}
+return out;
+}
+
+db.auth.onAuthStateChange(async(event,session)=>{
+if(session?.user){
+user=session.user;
+setTimeout(startApp,0);
+}else{
+user=null;
+profile=null;
+showAuth();
+}
+});
+
+async function startApp(){
+try{
+profile=await q(
+db.from("profiles")
+.select("*")
+.eq("id",user.id)
+.maybeSingle()
+);
+
+if(!profile){
+const u=(user.email||"user@").split("@")[0];
+
+profile=await q(
+db.from("profiles")
+.insert({
+id:user.id,
+username:u,
+friend_code:makeCode()
+})
+.select()
+.single()
+);
+}
+
+showApp();
+await loadAll();
+
+}catch(e){
+toast(errMsg(e));
+showApp();
+}
+}
+
+function showAuth(){
+document.getElementById("auth").classList.remove("hidden");
+document.getElementById("app").classList.add("hidden");
+document.getElementById("fab").classList.add("hidden");
+document.getElementById("bottomNav").classList.add("hidden");
+}
+
+function showApp(){
+document.getElementById("auth").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+document.getElementById("fab").classList.remove("hidden");
+document.getElementById("bottomNav").classList.remove("hidden");
+document.getElementById("todayDate").textContent=prettyDate();
+render();
+}
+
+async function loadAll(){
+personalHabits=await q(
+db.from("habits")
+.select("*")
+.eq("owner_id",user.id)
+.eq("is_shared",false)
+.order("created_at")
+);
+
+personalTasks=await q(
+db.from("tasks")
+.select("*")
+.eq("owner_id",user.id)
+.eq("is_shared",false)
+.order("created_at")
+);
+
+const memberships=await q(
+db.from("shared_space_members")
+.select("*")
+.eq("user_id",user.id)
+);
+
+const ids=memberships.map(x=>x.space_id);
+
+if(ids.length){
+sharedSpaces=await q(
+db.from("shared_spaces")
+.select("*")
+.in("id",ids)
+);
+}else{
+sharedSpaces=[];
+}
+
+activeSpace=sharedSpaces[0]||null;
+
+await loadFriends();
+
+if(activeSpace){
+await loadSpace();
+}else{
+sharedHabits=[];
+sharedTasks=[];
+members=[];
+}
+
+render();
+}
+
+async function loadFriends(){
+try{
+const rows=await q(
+db.from("friendships")
+.select("*")
+.or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
+);
+
+const ids=[
+...new Set(
+rows.map(r=>r.user_id===user.id?r.friend_id:r.user_id)
+)
 ];
 
-let sharedItems = [
-  {
-    name: "Exercise",
-    icon: "🏃",
-    type: "habit",
-    done: false
-  },
-  {
-    name: "Read 20 minutes",
-    icon: "📖",
-    type: "habit",
-    done: true
-  },
-  {
-    name: "Complete project task",
-    icon: "✓",
-    type: "task",
-    done: false
-  }
+friends=ids.length?
+await q(db.from("profiles").select("*").in("id",ids)):
+[];
+
+}catch(e){
+friends=[];
+}
+}
+
+async function loadSpace(){
+if(!activeSpace)return;
+
+try{
+sharedHabits=await q(
+db.from("habits")
+.select("*")
+.eq("space_id",activeSpace.id)
+.eq("is_shared",true)
+.order("created_at")
+);
+
+sharedTasks=await q(
+db.from("tasks")
+.select("*")
+.eq("space_id",activeSpace.id)
+.eq("is_shared",true)
+.order("created_at")
+);
+
+members=await q(
+db.from("shared_space_members")
+.select("*")
+.eq("space_id",activeSpace.id)
+);
+
+}catch(e){
+toast(errMsg(e));
+}
+}
+
+function isAdmin(){
+return activeSpace&&activeSpace.admin_id===user.id;
+}
+
+async function getCompletion(
+itemId,
+type,
+uid=user.id,
+date=today()
+){
+const table=type==="habit"?"habit_completions":"task_completions";
+const col=type==="habit"?"habit_id":"task_id";
+
+try{
+const row=await q(
+db.from(table)
+.select("completed")
+.eq(col,itemId)
+.eq("user_id",uid)
+.eq("completion_date",date)
+.maybeSingle()
+);
+
+return !!row?.completed;
+
+}catch(e){
+return false;
+}
+}
+
+async function setCompletion(item,type,value){
+const table=type==="habit"?"habit_completions":"task_completions";
+const col=type==="habit"?"habit_id":"task_id";
+
+try{
+const existing=await q(
+db.from(table)
+.select("id")
+.eq(col,item.id)
+.eq("user_id",user.id)
+.eq("completion_date",today())
+.maybeSingle()
+);
+
+if(existing){
+await q(
+db.from(table)
+.update({completed:value})
+.eq("id",existing.id)
+);
+}else{
+await q(
+db.from(table)
+.insert({
+[col]:item.id,
+user_id:user.id,
+completion_date:today(),
+completed:value
+})
+);
+}
+
+await render();
+
+}catch(e){
+toast(errMsg(e));
+}
+}
+
+async function streak(item,type,uid=user.id){
+let n=0;
+
+const table=type==="habit"?"habit_completions":"task_completions";
+const col=type==="habit"?"habit_id":"task_id";
+
+try{
+const rows=await q(
+db.from(table)
+.select("completion_date,completed")
+.eq(col,item.id)
+.eq("user_id",uid)
+.order("completion_date",{ascending:false})
+.limit(400)
+);
+
+const map=new Map(
+rows.map(r=>[r.completion_date,r.completed])
+);
+
+let d=new Date();
+
+if(!map.get(today())){
+d.setDate(d.getDate()-1);
+}
+
+for(let i=0;i<400;i++){
+const key=
+d.getFullYear()+"-"+
+String(d.getMonth()+1).padStart(2,"0")+"-"+
+String(d.getDate()).padStart(2,"0");
+
+if(map.get(key)===true){
+n++;
+}else{
+break;
+}
+
+d.setDate(d.getDate()-1);
+}
+
+}catch(e){}
+
+return n;
+}
+
+async function itemDone(item,type){
+return await getCompletion(item.id,type);
+}
+
+async function render(){
+document.getElementById("todayDate").textContent=prettyDate();
+
+const title={
+home:"Home",
+shared:activeSpace?.name||"Shared",
+settings:"Settings"
+}[tab];
+
+document.getElementById("pageTitle").textContent=title;
+
+document.querySelectorAll(".nav button").forEach(b=>{
+b.classList.toggle("active",b.dataset.tab===tab);
+});
+
+document.getElementById("fab").classList.toggle(
+"hidden",
+tab==="settings"
+);
+
+document.getElementById("headerAction").innerHTML=
+tab==="shared"&&activeSpace?
+`<div class="menu">
+<button class="dots" id="menuBtn">⋮</button>
+<div class="menu-pop hidden" id="menuPop">
+<button onclick="showFriendsModal()">Manage friends</button>
+${isAdmin()?
+'<button onclick="showSpaceItemsModal()">Manage shared items</button>':
+''}
+</div>
+</div>`:"";
+
+const c=document.getElementById("content");
+
+if(tab==="home")await renderHome(c);
+if(tab==="shared")await renderShared(c);
+if(tab==="settings")renderSettings(c);
+
+document.getElementById("menuBtn")?.addEventListener(
+"click",
+()=>{
+document.getElementById("menuPop").classList.toggle("hidden")
+}
+);
+}
+
+async function renderHome(c){
+let shDone=0;
+let spTotal=sharedHabits.length+sharedTasks.length;
+let phDone=0;
+let ppTotal=personalHabits.length+personalTasks.length;
+
+for(const x of sharedHabits){
+if(await itemDone(x,"habit"))shDone++;
+}
+
+for(const x of sharedTasks){
+if(await itemDone(x,"task"))shDone++;
+}
+
+for(const x of personalHabits){
+if(await itemDone(x,"habit"))phDone++;
+}
+
+for(const x of personalTasks){
+if(await itemDone(x,"task"))phDone++;
+}
+
+c.innerHTML="";
+
+c.insertAdjacentHTML(
+"beforeend",
+sectionHTML("Shared",shDone,spTotal)
+);
+
+if(spTotal){
+c.insertAdjacentHTML(
+"beforeend",
+`<div id="homeShared"></div>`
+);
+}else{
+c.insertAdjacentHTML(
+"beforeend",
+`<div class="section">
+<div class="empty">No shared space yet.</div>
+</div>`
+);
+}
+
+c.insertAdjacentHTML(
+"beforeend",
+sectionHTML("Personal",phDone,ppTotal)
+);
+
+c.insertAdjacentHTML(
+"beforeend",
+`<div class="section">
+<div id="homePersonal"></div>
+</div>`
+);
+
+const hs=document.getElementById("homeShared");
+const hp=document.getElementById("homePersonal");
+
+if(hs){
+const all=[
+...sharedHabits.map(x=>({...x,_type:"habit"})),
+...sharedTasks.map(x=>({...x,_type:"task"}))
 ];
 
-
-function formatDate() {
-
-  const date = new Date();
-
-  const options = {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  };
-
-  document.getElementById("todayDate").textContent =
-    date.toLocaleDateString("en-US", options);
+await renderItems(hs,all,false,true);
 }
 
+const allp=[
+...personalHabits.map(x=>({...x,_type:"habit"})),
+...personalTasks.map(x=>({...x,_type:"task"}))
+];
 
-function renderItem(item, index, shared = false) {
-
-  const completed = item.done ? "completed" : "";
-
-  let streakText = "";
-
-  if (!shared && item.type === "habit" && item.streak > 0) {
-    streakText = "🔥 " + item.streak;
-  }
-
-  return `
-    <div class="card ${item.type === "task" ? "task-card" : ""} ${completed}"
-         onclick="toggleItem(${index}, ${shared})">
-
-      <div class="item">
-
-        <div class="icon">
-          ${item.icon}
-        </div>
-
-        <div class="item-info">
-
-          <div class="item-name">
-            ${item.name}
-          </div>
-
-          ${
-            streakText
-            ? `<div class="streak">${streakText}</div>`
-            : ""
-          }
-
-        </div>
-
-        <button class="check"></button>
-
-      </div>
-
-    </div>
-  `;
+await renderItems(hp,allp,true,false);
 }
 
+function sectionHTML(name,done,total){
+const pct=total?Math.round(done/total*100):0;
 
-function render() {
+return `
+<div class="section">
+<div class="section-title">
+<h2>${name}</h2>
+</div>
 
-  const personal =
-    [...personalItems]
-    .sort((a,b) => Number(a.done) - Number(b.done));
+<div class="progress-wrap">
+<div class="progress-label">
+<span>${done} of ${total} complete</span>
+<span>${pct}%</span>
+</div>
 
-  const shared =
-    [...sharedItems]
-    .sort((a,b) => Number(a.done) - Number(b.done));
-
-
-  document.getElementById("personalItems").innerHTML =
-    personal.map((item) =>
-      renderItem(
-        item,
-        personalItems.indexOf(item),
-        false
-      )
-    ).join("");
-
-
-  document.getElementById("homeShared").innerHTML =
-    shared.map((item) =>
-      renderItem(
-        item,
-        sharedItems.indexOf(item),
-        true
-      )
-    ).join("");
-
-
-  document.getElementById("sharedHabits").innerHTML =
-    shared
-      .filter(item => item.type === "habit")
-      .map(item =>
-        renderItem(
-          item,
-          sharedItems.indexOf(item),
-          true
-        )
-      ).join("");
-
-
-  document.getElementById("sharedTasks").innerHTML =
-    shared
-      .filter(item => item.type === "task")
-      .map(item =>
-        renderItem(
-          item,
-          sharedItems.indexOf(item),
-          true
-        )
-      ).join("");
-
-
-  updateProgress();
+<div class="progress">
+<i style="width:${pct}%"></i>
+</div>
+</div>
+</div>`;
+}
+  async function renderItems(container,items,editable,sharedPreview){
+if(!items.length){
+container.innerHTML=`<div class="empty">Nothing here yet.</div>`;
+return;
 }
 
+const states=[];
 
-function toggleItem(index, shared) {
-
-  if (shared) {
-    sharedItems[index].done =
-      !sharedItems[index].done;
-  } else {
-    personalItems[index].done =
-      !personalItems[index].done;
-  }
-
-  render();
+for(const x of items){
+states.push({
+...x,
+done:await itemDone(x,x._type),
+streak:x._type==="habit"?await streak(x,"habit"):0
+});
 }
 
+states.sort((a,b)=>Number(a.done)-Number(b.done));
 
-function updateProgress() {
+container.innerHTML=states
+.map(x=>itemHTML(x,editable,sharedPreview))
+.join("");
 
-  const personalTotal = personalItems.length;
+container.querySelectorAll("[data-complete]").forEach(b=>{
+b.onclick=()=>{
+const item=states.find(x=>x.id===b.dataset.complete);
+setCompletion(
+item,
+b.dataset.type,
+!b.dataset.done
+);
+};
+});
 
-  const personalDone =
-    personalItems.filter(item => item.done).length;
+container.querySelectorAll("[data-edit]").forEach(b=>{
+b.onclick=()=>{
+const item=states.find(x=>x.id===b.dataset.edit);
+showEditModal(
+item,
+b.dataset.type,
+b.dataset.shared==="true"
+);
+};
+});
 
-  const personalPercent =
-    personalTotal
-      ? Math.round(personalDone / personalTotal * 100)
-      : 0;
-
-
-  const sharedTotal = sharedItems.length;
-
-  const sharedDone =
-    sharedItems.filter(item => item.done).length;
-
-  const sharedPercent =
-    sharedTotal
-      ? Math.round(sharedDone / sharedTotal * 100)
-      : 0;
-
-
-  document.getElementById("personalProgress").style.width =
-    personalPercent + "%";
-
-  document.getElementById("personalPercent").textContent =
-    personalPercent + "%";
-
-
-  document.getElementById("sharedProgress").style.width =
-    sharedPercent + "%";
-
-  document.getElementById("sharedPercent").textContent =
-    sharedPercent + "%";
+container.querySelectorAll("[data-delete]").forEach(b=>{
+b.onclick=()=>{
+const item=states.find(x=>x.id===b.dataset.delete);
+confirmDelete(
+item,
+b.dataset.type,
+b.dataset.shared==="true"
+);
+};
+});
 }
 
+function itemHTML(x,editable,sharedPreview){
 
-function showPage(page, button) {
+const menu=editable?
+`<button class="dots"
+data-edit="${x.id}"
+data-type="${x._type}"
+data-shared="${!!x.is_shared}">✎</button>
+<button class="dots"
+data-delete="${x.id}"
+data-type="${x._type}"
+data-shared="${!!x.is_shared}">×</button>`:"";
 
-  document.querySelectorAll(".page")
-    .forEach(p => p.classList.remove("active"));
+return `
+<div class="card ${x._type==="task"?"task":""} ${x.done?"done":""}">
+<div class="item-row">
 
-  document.getElementById(page)
-    .classList.add("active");
+<button class="check"
+data-complete="${x.id}"
+data-type="${x._type}"
+data-done="${x.done}">
+${x.done?"✓":""}
+</button>
 
-  document.querySelectorAll(".nav-btn")
-    .forEach(b => b.classList.remove("active"));
+<div class="item-main">
 
-  button.classList.add("active");
+<div class="item-name">
+${x._type==="habit"?esc(x.icon||"•")+" ":""}${esc(x.name)}
+</div>
 
-  window.scrollTo(0,0);
+<div class="item-meta">
+${x._type==="habit"?
+(x.streak>0?"🔥 "+x.streak:""):
+"Task"}
+</div>
+
+</div>
+
+${menu}
+
+</div>
+</div>`;
 }
 
+async function renderShared(c){
 
-function openModal() {
+if(!activeSpace){
 
-  document.getElementById("addModal")
-    .classList.add("show");
+c.innerHTML=`
+<div class="panel">
+<div class="panel-card">
 
-  document.getElementById("newItem").focus();
+<h3>Grow Together</h3>
+
+<p class="note">
+Create a shared space to compare your progress with friends.
+</p>
+
+<button class="primary"
+onclick="showCreateSpaceModal()">
+Create shared space
+</button>
+
+</div>
+</div>`;
+
+return;
 }
 
+const adminName=profile?.username||"You";
 
-function closeModal() {
+let other=members.find(
+m=>m.user_id!==user.id
+);
 
-  document.getElementById("addModal")
-    .classList.remove("show");
+let otherProfile=other?
+friends.find(f=>f.id===other.user_id):
+null;
 
-  document.getElementById("newItem").value = "";
+const myStreaks=[];
+const theirStreaks=[];
+
+for(const h of sharedHabits){
+
+myStreaks.push(
+await streak(h,"habit",user.id)
+);
+
+if(other){
+theirStreaks.push(
+await streak(h,"habit",other.user_id)
+);
+}
 }
 
+const myMax=myStreaks.length?
+Math.max(...myStreaks):0;
 
-function addItem() {
+const theirMax=theirStreaks.length?
+Math.max(...theirStreaks):0;
 
-  const input =
-    document.getElementById("newItem");
+c.innerHTML=`
+<div class="panel">
 
-  const name = input.value.trim();
+<div class="panel-card">
 
-  if (!name) return;
+<div class="streaks">
 
-  personalItems.push({
-    name: name,
-    icon: "✓",
-    type: "task",
-    streak: 0,
-    done: false
-  });
+<div class="streak-box">
+<div class="name">
+${esc(adminName)}
+</div>
 
-  closeModal();
-  render();
+<div class="num">
+🔥 ${myMax}
+</div>
+</div>
+
+<div class="streak-box">
+<div class="name">
+${esc(otherProfile?.username||"Friend")}
+</div>
+
+<div class="num">
+🔥 ${theirMax}
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="panel-card">
+<h3>Shared habits</h3>
+<div id="sharedHabits"></div>
+</div>
+
+<div class="panel-card">
+<h3>Shared tasks</h3>
+<div id="sharedTasks"></div>
+</div>
+
+</div>`;
+
+await renderItems(
+document.getElementById("sharedHabits"),
+sharedHabits.map(x=>({...x,_type:"habit"})),
+isAdmin(),
+false
+);
+
+await renderItems(
+document.getElementById("sharedTasks"),
+sharedTasks.map(x=>({...x,_type:"task"})),
+isAdmin(),
+false
+);
 }
 
+function renderSettings(c){
 
-function toggleDark() {
+c.innerHTML=`
+<div class="panel">
 
-  document.body.classList.toggle("dark");
+<div class="panel-card">
 
-  const enabled =
-    document.body.classList.contains("dark");
+<div class="setting-row">
 
-  document.getElementById("darkToggle")
-    .classList.toggle("on", enabled);
+<div>
+<div class="setting-label">
+Username
+</div>
+
+<div class="setting-sub">
+${esc(profile?.username||"")}
+</div>
+</div>
+
+<button onclick="showUsernameModal()">
+Change
+</button>
+
+</div>
+
+<div class="setting-row">
+
+<div>
+<div class="setting-label">
+Password
+</div>
+
+<div class="setting-sub">
+Change your login password
+</div>
+</div>
+
+<button onclick="showPasswordModal()">
+Change
+</button>
+
+</div>
+
+<div class="setting-row">
+
+<div>
+<div class="setting-label">
+Friend Code
+</div>
+
+<div class="setting-sub">
+Share this code with a friend
+</div>
+</div>
+
+<button onclick="showCodeModal()">
+View
+</button>
+
+</div>
+
+<div class="setting-row">
+
+<div>
+<div class="setting-label">
+Dark mode
+</div>
+
+<div class="setting-sub">
+Use a darker appearance
+</div>
+
+</div>
+
+<button class="toggle"
+id="themeToggle">
+<i></i>
+</button>
+
+</div>
+
+</div>
+
+<div class="panel-card">
+
+<button class="primary"
+onclick="logout()">
+Log out
+</button>
+
+</div>
+
+</div>`;
+
+const on=document.documentElement.dataset.theme==="dark";
+
+const t=document.getElementById("themeToggle");
+
+t.classList.toggle("on",on);
+
+t.onclick=()=>{
+toggleTheme();
+};
 }
 
+function toggleTheme(){
 
-formatDate();
+const dark=
+document.documentElement.dataset.theme!=="dark";
+
+document.documentElement.dataset.theme=
+dark?"dark":"light";
+
+localStorage.setItem(
+"gt_theme",
+dark?"dark":"light"
+);
+
+renderSettings(
+document.getElementById("content")
+);
+}
+
+async function logout(){
+
+if(realtimeChannel){
+await db.removeChannel(
+realtimeChannel
+);
+}
+
+await db.auth.signOut();
+}
+
+function openModal(title,body){
+
+document.getElementById("modalRoot").innerHTML=`
+<div class="modal-back" id="modalBack">
+
+<div class="modal">
+
+<h3>${title}</h3>
+
+${body}
+
+</div>
+
+</div>`;
+
+document.getElementById("modalBack").onclick=e=>{
+if(e.target.id==="modalBack"){
+closeModal();
+}
+};
+}
+
+function closeModal(){
+document.getElementById("modalRoot").innerHTML="";
+}
+
+function showCodeModal(){
+
+openModal(
+"Your Friend Code",
+
+`
+<div class="code">
+${esc(profile?.friend_code||"")}
+</div>
+
+<p class="note">
+Give this short code to your friend so they can connect with you.
+</p>
+
+<div class="modal-actions">
+
+<button class="primary"
+onclick="closeModal()">
+Done
+</button>
+
+</div>
+`
+);
+}
+
+function showUsernameModal(){
+
+openModal(
+"Change username",
+
+`
+<div class="field">
+
+<label>
+New username
+</label>
+
+<input
+id="newUsername"
+value="${esc(profile?.username||"")}"
+>
+
+</div>
+
+<div id="mErr"
+class="error hidden">
+</div>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Cancel
+</button>
+
+<button class="primary"
+onclick="changeUsername()">
+Save
+</button>
+
+</div>
+`
+);
+}
+
+async function changeUsername(){
+
+const u=
+document.getElementById("newUsername")
+.value.trim();
+
+const er=
+document.getElementById("mErr");
+
+if(!validUser(u)){
+
+er.textContent=
+"Use 3–30 letters, numbers or underscore.";
+
+er.classList.remove("hidden");
+
+return;
+}
+
+try{
+
+profile=await q(
+db.from("profiles")
+.update({username:u})
+.eq("id",user.id)
+.select()
+.single()
+);
+
+closeModal();
+
 render();
 
-</script>
+}catch(e){
 
+er.textContent=errMsg(e);
+
+er.classList.remove("hidden");
+}
+}
+
+function showPasswordModal(){
+
+openModal(
+"Change password",
+
+`
+<div class="field">
+
+<label>
+New password
+</label>
+
+<input
+id="newPassword"
+type="password"
+>
+
+</div>
+
+<div id="mErr"
+class="error hidden">
+</div>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Cancel
+</button>
+
+<button class="primary"
+onclick="changePassword()">
+Save
+</button>
+
+</div>
+`
+);
+}
+
+async function changePassword(){
+
+const p=
+document.getElementById("newPassword")
+.value;
+
+const er=
+document.getElementById("mErr");
+
+if(p.length<6){
+
+er.textContent=
+"Password must be at least 6 characters.";
+
+er.classList.remove("hidden");
+
+return;
+}
+
+try{
+
+await q(
+db.auth.updateUser({
+password:p
+})
+);
+
+closeModal();
+
+toast("Password changed.");
+
+}catch(e){
+
+er.textContent=errMsg(e);
+
+er.classList.remove("hidden");
+}
+}
+
+function showCreateSpaceModal(){
+
+openModal(
+"Create shared space",
+
+`
+<div class="field">
+
+<label>
+Space name
+</label>
+
+<input
+id="spaceName"
+placeholder="Grow Together"
+>
+
+</div>
+
+<p class="note">
+You will become the admin. You can add shared habits and tasks after creating the space.
+</p>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Cancel
+</button>
+
+<button class="primary"
+onclick="createSpace()">
+Create
+</button>
+
+</div>
+`
+);
+}
+
+async function createSpace(){
+
+const name=
+document.getElementById("spaceName")
+.value.trim()||"Grow Together";
+
+try{
+
+const s=await q(
+db.from("shared_spaces")
+.insert({
+name,
+admin_id:user.id
+})
+.select()
+.single()
+);
+
+await q(
+db.from("shared_space_members")
+.insert({
+space_id:s.id,
+user_id:user.id,
+role:"admin"
+})
+);
+
+activeSpace=s;
+sharedSpaces=[s];
+
+closeModal();
+
+await loadSpace();
+
+render();
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+function showAddModal(){
+
+openModal(
+"Add item",
+
+`
+<div class="field">
+
+<label>
+Type
+</label>
+
+<select
+id="itemType"
+style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)"
+>
+
+<option value="habit">
+Habit
+</option>
+
+<option value="task">
+Task
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Name
+</label>
+
+<input
+id="itemName"
+maxlength="80"
+>
+
+</div>
+
+<div id="iconField">
+
+<label style="display:block;font-size:13px;color:var(--muted);margin-bottom:7px">
+Icon
+</label>
+
+<div class="select-icon">
+
+${icons.map((x,i)=>`
+<button
+class="icon-choice ${i===0?"selected":""}"
+data-icon="${x}">
+${x}
+</button>
+`).join("")}
+
+</div>
+
+</div>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Cancel
+</button>
+
+<button class="primary"
+onclick="addPersonal()">
+Add
+</button>
+
+</div>
+`
+);
+
+document.querySelectorAll("[data-icon]").forEach(b=>{
+
+b.onclick=()=>{
+
+document.querySelectorAll("[data-icon]")
+.forEach(x=>x.classList.remove("selected"));
+
+b.classList.add("selected");
+
+};
+
+});
+
+document.getElementById("itemType").onchange=e=>{
+
+document.getElementById("iconField")
+.classList.toggle(
+"hidden",
+e.target.value==="task"
+);
+
+};
+}
+
+async function addPersonal(){
+
+const type=
+document.getElementById("itemType").value;
+
+const name=
+document.getElementById("itemName")
+.value.trim();
+
+if(!name){
+
+toast("Enter a name.");
+
+return;
+}
+
+try{
+
+if(type==="habit"){
+
+const icon=
+document.querySelector(
+".icon-choice.selected"
+)?.dataset.icon||"🎯";
+
+await q(
+db.from("habits")
+.insert({
+name,
+icon,
+owner_id:user.id,
+is_shared:false
+})
+);
+
+}else{
+
+await q(
+db.from("tasks")
+.insert({
+name,
+owner_id:user.id,
+is_shared:false
+})
+);
+
+}
+
+closeModal();
+
+await loadAll();
+
+toast("Added.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+  }
+  function showEditModal(item,type,isShared){
+
+openModal(
+"Edit "+(type==="habit"?"habit":"task"),
+
+`
+<div class="field">
+
+<label>
+Name
+</label>
+
+<input
+id="editName"
+value="${esc(item.name)}"
+maxlength="80"
+>
+
+</div>
+
+${type==="habit"?
+`
+<div class="field">
+
+<label>
+Icon
+</label>
+
+<div class="select-icon">
+
+${icons.map(x=>`
+<button
+class="icon-choice ${x===(item.icon||"🎯")?"selected":""}"
+data-edit-icon="${x}">
+${x}
+</button>
+`).join("")}
+
+</div>
+
+</div>
+`:""}
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Cancel
+</button>
+
+<button class="primary"
+onclick="saveEdit('${item.id}','${type}',${isShared})">
+Save
+</button>
+
+</div>
+`
+);
+
+document.querySelectorAll("[data-edit-icon]").forEach(b=>{
+
+b.onclick=()=>{
+
+document.querySelectorAll("[data-edit-icon]")
+.forEach(x=>x.classList.remove("selected"));
+
+b.classList.add("selected");
+
+};
+
+});
+}
+
+async function saveEdit(id,type,isShared){
+
+const name=
+document.getElementById("editName")
+.value.trim();
+
+if(!name){
+
+toast("Enter a name.");
+
+return;
+}
+
+try{
+
+const table=
+type==="habit"?"habits":"tasks";
+
+const changes={name};
+
+if(type==="habit"){
+
+changes.icon=
+document.querySelector(
+"[data-edit-icon].selected"
+)?.dataset.editIcon||"🎯";
+
+}
+
+await q(
+db.from(table)
+.update(changes)
+.eq("id",id)
+);
+
+closeModal();
+
+await loadAll();
+
+toast("Updated.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+function confirmDelete(item,type,isShared){
+
+openModal(
+"Delete permanently?",
+
+`
+<p class="note">
+This will permanently delete
+<strong>${esc(item.name)}</strong>
+and its completion history.
+</p>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+No
+</button>
+
+<button class="danger"
+onclick="deleteItem('${item.id}','${type}',${isShared})">
+Yes, delete
+</button>
+
+</div>
+`
+);
+}
+
+async function deleteItem(id,type,isShared){
+
+try{
+
+const table=
+type==="habit"?"habits":"tasks";
+
+await q(
+db.from(table)
+.delete()
+.eq("id",id)
+);
+
+closeModal();
+
+await loadAll();
+
+toast("Deleted permanently.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+function showFriendsModal(){
+
+openModal(
+"Manage friends",
+
+`
+<div class="field">
+
+<label>
+Friend Code
+</label>
+
+<input
+id="friendCode"
+maxlength="6"
+placeholder="ABC123"
+style="text-transform:uppercase"
+>
+
+</div>
+
+<div class="modal-actions">
+
+<button onclick="closeModal()">
+Close
+</button>
+
+<button class="primary"
+onclick="addFriend()">
+Add friend
+</button>
+
+</div>
+
+<div style="margin-top:18px">
+
+<h3 style="margin-bottom:8px">
+Your friends
+</h3>
+
+<div id="friendList"></div>
+
+</div>
+`
+);
+
+renderFriendList();
+}
+
+function renderFriendList(){
+
+const el=
+document.getElementById("friendList");
+
+if(!el)return;
+
+if(!friends.length){
+
+el.innerHTML=
+`<div class="empty">No friends added yet.</div>`;
+
+return;
+}
+
+el.innerHTML=
+friends.map(f=>`
+
+<div class="friend">
+
+<div class="avatar">
+${esc((f.username||"?")[0].toUpperCase())}
+</div>
+
+<div class="friend-main">
+
+<div class="friend-name">
+${esc(f.username)}
+</div>
+
+<div class="friend-code">
+${esc(f.friend_code||"")}
+</div>
+
+</div>
+
+<button
+class="dots"
+onclick="removeFriend('${f.id}')">
+×
+</button>
+
+</div>
+
+`).join("");
+}
+
+async function addFriend(){
+
+const code=
+document.getElementById("friendCode")
+.value.trim()
+.toUpperCase();
+
+if(code.length!==6){
+
+toast("Enter a valid 6-character Friend Code.");
+
+return;
+}
+
+try{
+
+const target=await q(
+db.from("profiles")
+.select("*")
+.eq("friend_code",code)
+.maybeSingle()
+);
+
+if(!target){
+
+toast("Friend Code not found.");
+
+return;
+}
+
+if(target.id===user.id){
+
+toast("You cannot add yourself.");
+
+return;
+}
+
+if(friends.some(f=>f.id===target.id)){
+
+toast("Already added.");
+
+return;
+}
+
+await q(
+db.from("friendships")
+.insert({
+user_id:user.id,
+friend_id:target.id
+})
+);
+
+friends.push(target);
+
+document.getElementById("friendCode").value="";
+
+renderFriendList();
+
+toast("Friend added.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+async function removeFriend(id){
+
+if(!confirm("Remove this friend?"))return;
+
+try{
+
+await q(
+db.from("friendships")
+.delete()
+.or(
+`and(user_id.eq.${user.id},friend_id.eq.${id}),and(user_id.eq.${id},friend_id.eq.${user.id})`
+)
+);
+
+friends=friends.filter(f=>f.id!==id);
+
+renderFriendList();
+
+toast("Friend removed.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+function showSpaceItemsModal(){
+
+if(!isAdmin()){
+
+toast("Only the admin can manage shared items.");
+
+return;
+}
+
+openModal(
+"Manage shared items",
+
+`
+<div class="panel-card"
+style="margin:0 0 12px">
+
+<h3>Add shared item</h3>
+
+<div class="field">
+
+<label>
+Type
+</label>
+
+<select
+id="sharedType"
+style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)"
+>
+
+<option value="habit">
+Habit
+</option>
+
+<option value="task">
+Task
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Name
+</label>
+
+<input
+id="sharedName"
+maxlength="80"
+>
+
+</div>
+
+<div id="sharedIconField">
+
+<label style="display:block;font-size:13px;color:var(--muted);margin-bottom:7px">
+Icon
+</label>
+
+<div class="select-icon">
+
+${icons.map((x,i)=>`
+<button
+class="icon-choice ${i===0?"selected":""}"
+data-shared-icon="${x}">
+${x}
+</button>
+`).join("")}
+
+</div>
+
+</div>
+
+<button
+class="primary"
+onclick="addShared()">
+Add shared item
+</button>
+
+</div>
+
+<div class="panel-card"
+style="margin:0">
+
+<h3>Existing shared items</h3>
+
+<div id="managedShared"></div>
+
+</div>
+`
+);
+
+document.querySelectorAll("[data-shared-icon]").forEach(b=>{
+
+b.onclick=()=>{
+
+document.querySelectorAll("[data-shared-icon]")
+.forEach(x=>x.classList.remove("selected"));
+
+b.classList.add("selected");
+
+};
+
+});
+
+document.getElementById("sharedType").onchange=e=>{
+
+document.getElementById("sharedIconField")
+.classList.toggle(
+"hidden",
+e.target.value==="task"
+);
+
+};
+
+renderManagedShared();
+}
+
+function renderManagedShared(){
+
+const el=
+document.getElementById("managedShared");
+
+if(!el)return;
+
+const items=[
+...sharedHabits.map(x=>({...x,_type:"habit"})),
+...sharedTasks.map(x=>({...x,_type:"task"}))
+];
+
+if(!items.length){
+
+el.innerHTML=
+`<div class="empty">No shared items yet.</div>`;
+
+return;
+}
+
+el.innerHTML=
+items.map(x=>`
+
+<div class="friend">
+
+<div class="friend-main">
+
+<div class="friend-name">
+${x._type==="habit"?esc(x.icon||"🎯")+" ":""}${esc(x.name)}
+</div>
+
+<div class="friend-code">
+${x._type==="habit"?"Habit":"Task"}
+</div>
+
+</div>
+
+<button
+class="dots"
+onclick="showEditModalFromManage('${x.id}','${x._type}')">
+✎
+</button>
+
+<button
+class="dots"
+onclick="confirmDeleteFromManage('${x.id}','${x._type}')">
+×
+</button>
+
+</div>
+
+`).join("");
+}
+
+function findSharedItem(id,type){
+
+return type==="habit"?
+sharedHabits.find(x=>x.id===id):
+sharedTasks.find(x=>x.id===id);
+}
+
+function showEditModalFromManage(id,type){
+
+const item=findSharedItem(id,type);
+
+if(item){
+
+showEditModal(item,type,true);
+
+}
+
+}
+
+function confirmDeleteFromManage(id,type){
+
+const item=findSharedItem(id,type);
+
+if(item){
+
+confirmDelete(item,type,true);
+
+}
+
+}
+
+async function addShared(){
+
+if(!activeSpace||!isAdmin()){
+
+toast("Only the admin can add shared items.");
+
+return;
+}
+
+const type=
+document.getElementById("sharedType").value;
+
+const name=
+document.getElementById("sharedName")
+.value.trim();
+
+if(!name){
+
+toast("Enter a name.");
+
+return;
+}
+
+try{
+
+if(type==="habit"){
+
+const icon=
+document.querySelector(
+"[data-shared-icon].selected"
+)?.dataset.sharedIcon||"🎯";
+
+await q(
+db.from("habits")
+.insert({
+name,
+icon,
+owner_id:user.id,
+space_id:activeSpace.id,
+is_shared:true
+})
+);
+
+}else{
+
+await q(
+db.from("tasks")
+.insert({
+name,
+owner_id:user.id,
+space_id:activeSpace.id,
+is_shared:true
+})
+);
+
+}
+
+closeModal();
+
+await loadAll();
+
+showSpaceItemsModal();
+
+toast("Shared item added.");
+
+}catch(e){
+
+toast(errMsg(e));
+}
+}
+
+async function setupRealtime(){
+
+if(!user)return;
+
+if(realtimeChannel){
+
+await db.removeChannel(
+realtimeChannel
+);
+
+}
+
+realtimeChannel=
+db.channel("grow-together-"+user.id)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"habit_completions"
+},
+()=>{
+loadAll();
+}
+)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"task_completions"
+},
+()=>{
+loadAll();
+}
+)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"habits"
+},
+()=>{
+loadAll();
+}
+)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"tasks"
+},
+()=>{
+loadAll();
+}
+)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"friendships"
+},
+()=>{
+loadFriends().then(()=>render());
+}
+)
+
+.subscribe();
+}
+
+document.querySelectorAll(".nav button").forEach(b=>{
+
+b.onclick=async()=>{
+
+tab=b.dataset.tab;
+
+await render();
+
+};
+
+});
+
+document.getElementById("fab").onclick=()=>{
+
+if(tab==="home"){
+
+showAddModal();
+
+}else if(tab==="shared"&&isAdmin()){
+
+showSpaceItemsModal();
+
+}
+
+};
+
+document.documentElement.dataset.theme=
+localStorage.getItem("gt_theme")||"light";
+
+(async()=>{
+
+const {data}=await db.auth.getSession();
+
+if(data.session){
+
+user=data.session.user;
+
+await startApp();
+
+setTimeout(setupRealtime,500);
+
+}else{
+
+showAuth();
+
+}
+
+})();
+</script>
 </body>
 </html>
